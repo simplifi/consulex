@@ -29,7 +29,8 @@ defmodule Consul.MixProject do
       {:jason, ">= 1.0.0", optional: true},
       {:poison, ">= 2.0.0 and < 5.0.0", optional: true},
       {:yaml_elixir, ">= 2.0.0", optional: true},
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
+      {:credo, "~> 1.5", only: :dev, runtime: false}
     ]
   end
 
