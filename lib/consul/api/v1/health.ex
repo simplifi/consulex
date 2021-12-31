@@ -8,7 +8,7 @@ defmodule Consul.Api.V1.Health do
   @doc """
   List checks associated with the service provided on the path.
   """
-  def list_checks(connection, service, optional_params \\ [], opts \\ []) do
+  def list_checks(connection, service, optional_params \\ []) do
     optional_params_config = %{
       :dc => :query,
       :near => :query,
@@ -22,20 +22,18 @@ defmodule Consul.Api.V1.Health do
     request =
       Request.new()
       |> Request.method(:get)
-      |> Request.url("/v1/health/checks/{service}", %{
-        "service" => URI.encode(service, &URI.char_unreserved?/1)
-      })
+      |> Request.url("/v1/health/checks/#{service}")
       |> Request.add_optional_params(optional_params_config, optional_params)
 
     connection
     |> Connection.execute(request)
-    |> Response.decode(opts ++ [as: %{}])
+    |> Response.decode()
   end
 
   @doc """
   List nodes providing the service indicated on the path.
   """
-  def list_nodes(connection, service, optional_params \\ [], opts \\ []) do
+  def list_nodes(connection, service, optional_params \\ []) do
     optional_params_config = %{
       :dc => :query,
       :near => :query,
@@ -51,13 +49,11 @@ defmodule Consul.Api.V1.Health do
     request =
       Request.new()
       |> Request.method(:get)
-      |> Request.url("/v1/health/service/{service}", %{
-        "service" => URI.encode(service, &URI.char_unreserved?/1)
-      })
+      |> Request.url("/v1/health/service/#{service}")
       |> Request.add_optional_params(optional_params_config, optional_params)
 
     connection
     |> Connection.execute(request)
-    |> Response.decode(opts ++ [as: %{}])
+    |> Response.decode()
   end
 end

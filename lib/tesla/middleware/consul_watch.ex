@@ -14,33 +14,8 @@ defmodule Tesla.Middleware.ConsulWatch do
 
   @behaviour Tesla.Middleware
 
-  use GenServer
-
   @default_wait 60_000
   @header_x_consul_index "x-consul-index"
-  @index_table Module.concat(__MODULE__, "Indexes")
-
-  def reset(%{url: url}) do
-    GenServer.call(__MODULE__, {:reset, url})
-  end
-
-  def start_link(_opts \\ []) do
-    GenServer.start_link(__MODULE__, [], name: __MODULE__)
-  end
-
-  @impl GenServer
-  def init(_) do
-    @index_table = :ets.new(@index_table, [:named_table, :public])
-
-    {:ok, []}
-  end
-
-  @impl GenServer
-  def handle_call({:reset, url}, _from, state) do
-    :ets.delete(@index_table, url)
-
-    {:reply, :ok, state}
-  end
 
   @impl Tesla.Middleware
   def call(env, next, opts) do
@@ -50,63 +25,36 @@ defmodule Tesla.Middleware.ConsulWatch do
     |> store_index()
   end
 
+  # Look up the current index for this url
+  # If we have none, then perform unblocking get to find initial index
   defp load_index(%{method: :get, url: url} = env, opts) do
-    case :ets.lookup(@index_table, url) do
-      [] ->
+    case Consul.IndexStore.get(url) do
+      nil ->
         env
 
-      [{_, index}] ->
+      index ->
         wait =
           Keyword.get(opts, :wait, @default_wait)
-          |> to_gotime()
+          |> format_time()
 
         env
         |> Map.update!(:query, &(&1 ++ [wait: wait, index: index]))
     end
   end
 
+  # Do not perform a blocking wait if this isn't a get operation
   defp load_index(env, _opts), do: env
 
-  def to_gotime(duration) do
-    ms =
-      case rem(duration, 1_000) do
-        0 ->
-          ""
+  defp format_time(duration), do: "#{duration}ms"
 
-        ms ->
-          <<"0", ms::binary>> = to_string(ms / 1_000)
-          ms
-      end
-
-    duration = div(duration, 1_000)
-
-    s =
-      case rem(duration, 60) do
-        0 -> if(ms == "", do: "", else: "0#{ms}s")
-        s -> "#{s}#{ms}s"
-      end
-
-    duration = div(duration, 60)
-
-    m =
-      case rem(duration, 60) do
-        0 -> s
-        m -> "#{m}m#{s}"
-      end
-
-    case div(duration, 60) do
-      0 -> m
-      h -> "#{h}h#{m}"
-    end
-  end
-
+  # Save off the received index for next call
   def store_index({:ok, %{url: url} = env}) do
     case Tesla.get_header(env, @header_x_consul_index) do
       nil ->
-        :ets.delete(@index_table, url)
+        Consul.IndexStore.delete(url)
 
       index ->
-        :ets.insert(@index_table, {url, index})
+        Consul.IndexStore.set(url, index)
     end
 
     {:ok, env}
