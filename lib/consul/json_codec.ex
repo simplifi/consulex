@@ -11,5 +11,5 @@ defmodule Consul.JsonCodec do
 
   def decode(iodata), do: json_codec().decode(iodata)
 
-  defp json_codec, do: Application.get_env(:consulex, :json_codec, Jason)
+  defp json_codec, do: Application.get_env(:exconsulex, :json_codec, Jason)
 end

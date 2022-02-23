@@ -1,4 +1,4 @@
-# Consul
+# ExConsulEx
 
 A Consul Client written in Elixir using [`Tesla`](https://github.com/teamon/tesla).
 
@@ -10,13 +10,13 @@ read-only APIs. On the other hand, it implements a
 
 ## Installation
 
-The package can be installed by adding `consulex` to your list of dependencies
+The package can be installed by adding `exconsulex` to your list of dependencies
 in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:consulex, "~> 0.1"}
+    {:exconsulex, "~> 0.2"}
   ]
 end
 ```
@@ -28,7 +28,7 @@ then do:
 
 ```elixir
 # config/config.exs
-config :consulex, json_codec: Poison
+config :exconsulex, json_codec: Poison
 ```
 
 ## How to use

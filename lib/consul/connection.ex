@@ -6,7 +6,7 @@ defmodule Consul.Connection do
   @type t :: Tesla.Env.client()
 
   @default_scheme "http://"
-  @consulex_version "consulex/#{Application.spec(:consulex, :vsn)}"
+  @version "exconsulex/#{Application.spec(:exconsulex, :vsn)}"
 
   @retry_defaults [
     delay: 50,
@@ -95,7 +95,7 @@ defmodule Consul.Connection do
   end
 
   defp build_headers(output, header_params) do
-    headers = [{"x-api-client", @consulex_version} | header_params]
+    headers = [{"x-api-client", @version} | header_params]
     Keyword.put(output, :headers, headers)
   end
 
