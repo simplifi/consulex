@@ -6,7 +6,7 @@ defmodule Consul.Connection do
   @type t :: Tesla.Env.client()
 
   @default_scheme "http://"
-  @consulex_version Mix.Project.config() |> Keyword.get(:version, "")
+  @version "exconsulex/#{Application.spec(:exconsulex, :vsn)}"
 
   @retry_defaults [
     delay: 50,
@@ -43,9 +43,10 @@ defmodule Consul.Connection do
       Tesla.Middleware.FollowRedirects
     ]
 
-    opts = Keyword.update(opts, :retry, @retry_defaults, fn retry ->
-      Keyword.merge(@retry_defaults, retry)
-    end)
+    opts =
+      Keyword.update(opts, :retry, @retry_defaults, fn retry ->
+        Keyword.merge(@retry_defaults, retry)
+      end)
 
     middleware =
       Enum.reduce(opts, middleware, fn opt, middleware ->
@@ -94,16 +95,7 @@ defmodule Consul.Connection do
   end
 
   defp build_headers(output, header_params) do
-    api_client =
-      Enum.join(
-        [
-          "elixir/#{System.version()}",
-          "consulex/#{@consulex_version}"
-        ],
-        " "
-      )
-
-    headers = [{"x-api-client", api_client} | header_params]
+    headers = [{"x-api-client", @version} | header_params]
     Keyword.put(output, :headers, headers)
   end
 

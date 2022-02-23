@@ -3,14 +3,21 @@ defmodule Consul.MixProject do
 
   def project do
     [
-      app: :consulex,
-      version: "0.1.2",
+      app: :exconsulex,
+      version: "0.2.0",
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
-      source_url: "https://github.com/team-telnyx/consulex",
-      description: description()
+      source_url: "https://github.com/simplifi/exconsulex",
+      description: "Library for interacting with Consul",
+      dialyzer: [
+        flags: [
+          :unmatched_returns,
+          :error_handling,
+          :race_conditions
+        ],
+      ]
     ]
   end
 
@@ -26,24 +33,18 @@ defmodule Consul.MixProject do
   defp deps do
     [
       {:tesla, "~> 1.3"},
-      {:jason, ">= 1.0.0", optional: true},
-      {:poison, ">= 2.0.0 and < 5.0.0", optional: true},
-      {:yaml_elixir, ">= 2.0.0", optional: true},
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      {:jason, "~> 1.0", optional: true},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
+      {:credo, "~> 1.5", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.1", only: :dev, runtime: false}
     ]
-  end
-
-  defp description do
-    """
-    Library for interacting with Consul on top of Tesla
-    """
   end
 
   defp package do
     [
-      maintainers: ["Guilherme Balena Versiani <guilherme@telnyx.com>"],
+      maintainers: ["Kurt Johnson <kurt@simpli.fi>"],
       licenses: ["Apache 2.0"],
-      links: %{"GitHub" => "https://github.com/team-telnyx/consulex"},
+      links: %{"GitHub" => "https://github.com/simplifi/exconsulex"},
       files: ~w"lib mix.exs README.md LICENSE"
     ]
   end

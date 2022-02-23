@@ -3,8 +3,6 @@ defmodule Consul.Request do
   This module is used to build an HTTP request
   """
 
-  @path_template_regex ~r/{(\+?[^}]+)}/i
-
   defstruct method: :get, url: "", body: [], query: [], header: []
 
   @type param_location :: :body | :query | :header
@@ -57,27 +55,8 @@ defmodule Consul.Request do
 
   *   `Consul.Request.t`
   """
-  @spec url(Consul.Request.t(), String.t(), map()) :: Consul.Request.t()
-  def url(request, u, replacements) do
-    url(request, replace_path_template_vars(u, replacements))
-  end
-
   def url(request, u) do
     Map.put(request, :url, u)
-  end
-
-  defp replace_path_template_vars(u, replacements) do
-    Regex.replace(@path_template_regex, u, fn _, var -> replacement_value(var, replacements) end)
-  end
-
-  defp replacement_value("+" <> name, replacements) do
-    URI.decode(replacement_value(name, replacements))
-  end
-
-  defp replacement_value(name, replacements) do
-    replacements
-    |> Map.get(name, "")
-    |> to_string
   end
 
   @doc """
