@@ -1,0 +1,19 @@
+language: elixir
+matrix:
+  include:
+    - elixir: '1.10.4'
+      otp_release: '23.3.1'
+    - elixir: '1.11.4'
+      otp_release: '23.3.1'
+    - elixir: '1.12.3'
+      otp_release: '24.0'
+    - elixir: '1.13.2'
+      otp_release: '24.2'
+cache:
+  directories:
+    - deps
+    - _build
+script:
+  - mix test
+  - mix credo --strict
+  - travis_wait mix dialyzer
